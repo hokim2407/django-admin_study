@@ -10,6 +10,8 @@ class User(models.Model):
 	updated_at = models.DateTimeField(auto_now=True, verbose_name="수정일", )
 	created_at = models.DateTimeField(auto_now_add=True, verbose_name="생성일", )
  
+	user_img_url = models.CharField(verbose_name="유저 이미지 주소",max_length=200, null=True, blank=True)
+ 
 	def __str__(self):
 		return f"{self.id} ({self.user_name})"
 
