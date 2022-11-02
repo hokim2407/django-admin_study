@@ -33,6 +33,25 @@ class UserAdmin(admin.ModelAdmin):
                          <img src='{obj.user_img_url}' id='previewImg'/>
                          <button type='button' id='previewBtn'> 이미지 미리보기</button>
                          """)
+        
+    def changelist_view(self, request, extra_context=None):
+        if(extra_context is None):
+            extra_context = {}
+        extra_context.update({'buttons':[
+            {'name':'네이버', 'url':'https://www.naver.com/'},
+            {'name':'구글','url':'https://www.google.com/'},
+        ]})
+        return super().changelist_view(request, extra_context)
+        
+    def changeform_view(self, request, object_id=None, form_url='', extra_context=None):
+        if(extra_context is None):
+            extra_context = {}
+        extra_context.update({'buttons':[
+            {'name':'알럿 메세지', 'script':'alert("Hello")'},
+            {'name':'콘솔 메세지','script':'console.log("World")'},
+        ]})
+        return super().changeform_view(request, object_id, form_url, extra_context)
+        
     class Media:
         js = ( '/static/js/imgPreview.js', )
         css = {'all': ('/static/css/custom.css', )}

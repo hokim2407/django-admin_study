@@ -1,0 +1,23 @@
+{% load i18n admin_urls %}
+
+{% block object-tools-items %}
+{% if has_add_permission %}
+<li>
+	{% url cl.opts|admin_urlname:'add' as add_url %}
+	<a href="{% add_preserved_filters add_url is_popup to_field %}" class="addlink">
+		{% blocktranslate with cl.opts.verbose_name as name %}{{ name }} 추가{% endblocktranslate %}
+	</a>
+	
+	<!-- 추가된 부분 시작 -->
+	{% if buttons %}
+		{% for btn in buttons %}
+		<a href="{{btn.url}}" class="addlink">
+			{{btn.name}}
+		</a>
+		{% endfor %}
+	{% endif %}
+	<!-- 추가된 부분 끝 -->
+
+</li>
+{% endif %}
+{% endblock %}

@@ -1,8 +1,14 @@
+
 button{
 	background: #4caf50;
-    padding: 10px 15px;
+    padding: 9px 15px;
     border: none;
     border-radius: 4px;
     color: white;
     cursor: pointer;
+    vertical-align: middle;
+}
+
+.object-tools a.addlink{
+    margin-left: 5px;
 }
