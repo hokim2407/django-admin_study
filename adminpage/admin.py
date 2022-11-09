@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User
+from .models import User, Address
 
 admin.ModelAdmin.list_per_page = 20
 admin_site = admin.AdminSite(name='yourwish')
@@ -8,22 +8,36 @@ from django.utils import timezone
 from datetime import timedelta
 
 from django.utils.html import mark_safe
+from .baseAdmin import BaseAdmin
 
-class UserAdmin(admin.ModelAdmin):
+
+
+
+class AddrInline(admin.TabularInline):
+    model = Address
+    readonly_fields = ('created_at', 'updated_at')
+    extra = 0
+    
+
+class UserAdmin(BaseAdmin):
     list_display = ('id', 'user_name', 'recent_login','isRecentlyLogined2')
     fields =  ('id', 
                ('user_img_url', 'imgThumbnail'),
                'user_name','user_pass', 
                ('recent_login','isRecentlyLogined2'))
     readonly_fields =  ('isRecentlyLogined2', 'imgThumbnail')
+    inlines=[AddrInline]
 
     @admin.display(
 		boolean=True,
   		description="최근 로그인 여부"
 	)
     def isRecentlyLogined2(self, obj):
-        recent = timezone.now() - timedelta(days=10)
-        return obj.recent_login > recent
+        try:
+            recent = timezone.now() - timedelta(days=10)
+            return obj.recent_login > recent
+        except Exception as e:
+            return False
     
     @admin.display(
   		description="이미지 미리보기"
@@ -58,3 +72,4 @@ class UserAdmin(admin.ModelAdmin):
 		
 
 admin_site.register(User, UserAdmin)
+admin_site.register(Address)

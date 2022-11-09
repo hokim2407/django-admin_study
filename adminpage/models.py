@@ -2,6 +2,9 @@ from django.db import models
 from django.utils import timezone
 from datetime import timedelta
 from django.contrib import admin
+
+
+
 class User(models.Model):
 	id = models.CharField(primary_key=True, verbose_name="아이디",max_length=200)
 	user_name = models.CharField(verbose_name="이름",max_length=200)
@@ -27,3 +30,23 @@ class User(models.Model):
 		managed = True
 		db_table = 'user' 
 		verbose_name_plural = '유저' 
+  
+  
+class Address(models.Model):
+	id = models.AutoField(primary_key=True)
+	addr1 = models.CharField(verbose_name="주소 1",max_length=200)
+	addr2 = models.CharField(verbose_name="주소 2",max_length=200)
+	postcode = models.CharField(verbose_name="우편번호",max_length=200)
+	updated_at = models.DateTimeField(auto_now=True, verbose_name="수정일", )
+	created_at = models.DateTimeField(auto_now_add=True, verbose_name="생성일", )
+
+	user_id = models.ForeignKey(User,  on_delete=models.CASCADE, db_column="user_id", related_name="userAddr")
+ 
+	def __str__(self):
+		return f"[{self.postcode}] {self.addr1},{self.addr2}"
+
+
+	class Meta:
+		managed = True
+		db_table = 'address' 
+		verbose_name_plural = '주소' 
