@@ -1,8 +1,5 @@
 from django.contrib import admin
-from .models import User, Address
-
-admin.ModelAdmin.list_per_page = 20
-admin_site = admin.AdminSite(name='yourwish')
+from .models import User, Address, Achivement
 
 from django.utils import timezone
 from datetime import timedelta
@@ -10,8 +7,11 @@ from datetime import timedelta
 from django.utils.html import mark_safe
 from .baseAdmin import BaseAdmin
 
+from django.contrib.auth.models import User as AuthUser, Group
+from django.contrib.auth.admin import UserAdmin as AuthUserAdmin,  GroupAdmin
 
-
+admin.ModelAdmin.list_per_page = 20
+admin_site = admin.AdminSite(name='yourwish')
 
 class AddrInline(admin.TabularInline):
     model = Address
@@ -19,13 +19,60 @@ class AddrInline(admin.TabularInline):
     extra = 0
     
 
+
+from django import forms
+from django.contrib.admin.widgets import FilteredSelectMultiple
+
+class ManytoManyAdminForm(forms.ModelForm):
+    AchiveList = forms.ModelMultipleChoiceField(
+        queryset=Achivement.objects.all(),
+        required=False,
+        widget=FilteredSelectMultiple(
+            verbose_name='업적',
+            is_stacked=False
+        ),
+        label='업적 리스트',
+    )
+
+
+    class Meta:
+        model = User
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            self.fields['AchiveList'].initial = self.instance.achives.all()
+
+
+    def save(self, commit=True):
+        obj = super().save(commit)
+        initial = self.fields['AchiveList'].initial 
+        diff = self.cleaned_data['AchiveList'].difference(initial).count() + initial.difference(self.cleaned_data['AchiveList']).count()
+        if obj.pk and diff > 0  :
+            try:
+                # print("###########################\n", initial,"\n###########################\n", )
+                ori_pks = list(initial.values_list('id' , flat=True))
+                obj.achives.set(
+                    self.cleaned_data['AchiveList'], clear=True)
+                # print("###########################\n", initial,"\n###########################\n", )
+                self.initial['AchiveList'] = Achivement.objects.filter(pk__in=ori_pks)
+            except Exception as e:
+                print(e)
+        return obj
+
 class UserAdmin(BaseAdmin):
+    form=ManytoManyAdminForm
     list_display = ('id', 'user_name', 'recent_login','isRecentlyLogined2')
     fields =  ('id', 
                ('user_img_url', 'imgThumbnail'),
                'user_name','user_pass', 
-               ('recent_login','isRecentlyLogined2'))
+               ('recent_login','isRecentlyLogined2'),
+               'friend',
+               'AchiveList'
+               )
     readonly_fields =  ('isRecentlyLogined2', 'imgThumbnail')
+    filter_horizontal=('friend',)
     inlines=[AddrInline]
 
     @admin.display(
@@ -73,3 +120,10 @@ class UserAdmin(BaseAdmin):
 
 admin_site.register(User, UserAdmin)
 admin_site.register(Address)
+admin_site.register(Achivement)
+
+
+
+# django authentication 관련 어드민
+admin_site.register(AuthUser, AuthUserAdmin)
+admin_site.register(Group, GroupAdmin)
