@@ -61,8 +61,6 @@ class Address(models.Model):
 		db_table = 'address' 
 		verbose_name_plural = '주소' 
   
-    
-
   
 class Achivement(models.Model):
 	id = models.AutoField(primary_key=True)
@@ -89,4 +87,51 @@ class UserAchivement(models.Model):
 		managed = True
 		db_table = 'user_achivement' 
 		verbose_name_plural = '유저-업적' 
+  
+  
+  
+class Survey(models.Model):
+	id = models.AutoField(primary_key=True)
+	surv_name = models.CharField(verbose_name="설문조사명",max_length=200)
+	updated_at = models.DateTimeField(auto_now=True, verbose_name="수정일", )
+	created_at = models.DateTimeField(auto_now_add=True, verbose_name="생성일", )
+ 
+	def __str__(self):
+		return f"{self.surv_name}"
+
+	class Meta:
+		managed = True
+		db_table = 'survey' 
+		verbose_name_plural = '설문조사' 
+  
+class SurveyQ(models.Model):
+	id = models.AutoField(primary_key=True)
+	surv_id= models.ForeignKey(Survey,  on_delete=models.CASCADE, db_column="surv_id", related_name="surv_survQ")
+	surv_q_content= models.CharField(verbose_name="설문조사 질문",max_length=200)
+	updated_at = models.DateTimeField(auto_now=True, verbose_name="수정일", )
+	created_at = models.DateTimeField(auto_now_add=True, verbose_name="생성일", )
+ 
+ 
+	def __str__(self):
+		return f"[{self.surv_id}]{self.surv_q_content}"
+
+	class Meta:
+		managed = True
+		db_table = 'survey_q' 
+		verbose_name_plural = '설문조사 질문' 
+  
+class SurveyA(models.Model):
+	id = models.AutoField(primary_key=True)
+	surv_q_id= models.ForeignKey(SurveyQ,  on_delete=models.CASCADE, db_column="surv_q_id", related_name="survQ_survA")
+	user_id= models.ForeignKey(User,  on_delete=models.CASCADE, db_column="user_id", related_name="user_survA")
+	surv_a_content= models.CharField(verbose_name="설문조사 응답",max_length=200)
+	created_at = models.DateTimeField(auto_now_add=True, verbose_name="생성일", )
+ 
+	def __str__(self):
+		return f"[{self.surv_q_id}/{self.user_id}]{self.surv_a_content}"
+
+	class Meta:
+		managed = True
+		db_table = 'survey_a' 
+		verbose_name_plural = '설문조사 응답' 
   
